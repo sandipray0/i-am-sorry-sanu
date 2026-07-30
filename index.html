@@ -235,8 +235,8 @@
     const isVisible = ()=> !btn.closest('.step').classList.contains('hidden');
 
     function radius(){
-      const base = Math.min(window.innerWidth, window.innerHeight) * 0.34;
-      return base + step * 26; // flees earlier and a bit more each step
+      const base = Math.min(window.innerWidth, window.innerHeight) * 0.2;
+      return base + step * 16; // flees when she gets close; press-dodge guarantees no click lands
     }
 
     function nextLabel(){
@@ -291,8 +291,13 @@
       if(Math.hypot(clientX - cx, clientY - cy) < radius()) dodge(clientX, clientY);
     }
 
-    // approaching from a distance (fast mouse moves included)
-    document.addEventListener('mousemove', e=>{ if(isVisible()) proximity(e.clientX, e.clientY); });
+    // approaching from a distance — only after the pointer has actually moved,
+    // so the button stays put (and visible) on load until she really approaches it
+    document.addEventListener('mousemove', e=>{
+      if(!isVisible()) return;
+      if(e.movementX === 0 && e.movementY === 0) return; // ignore the initial cursor position
+      proximity(e.clientX, e.clientY);
+    });
 
     // instant dodge the moment the cursor lands on it (the "must cover on hover" guarantee)
     btn.addEventListener('mouseenter', e=>{ if(isVisible()) dodge(e.clientX, e.clientY); });
@@ -338,6 +343,14 @@
     el.style.fontSize = (0.9 + Math.random()*1.1) + 'rem';
     field.appendChild(el);
   }
+
+  // hidden reset for testing (desktop only — she's on mobile, no keyboard):
+  // press "R" to restart from step 1
+  document.addEventListener('keydown', e=>{
+    if((e.key === 'r' || e.key === 'R') && !e.ctrlKey && !e.metaKey && !e.altKey){
+      saveStep(1); showStep(1);
+    }
+  });
 
   showStep(loadStep());
 })();
