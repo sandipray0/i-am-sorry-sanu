@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#ffc9dc">
+<title>Sanu, please forgive me 💗</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;1,500;1,600&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-top:#ffe6ee;
+    --bg-bottom:#ffc9dc;
+    --card:#fffaf9;
+    --ink:#472538;
+    --ink-soft:#7a5468;
+    --rose:#e0577c;
+    --rose-deep:#c93f66;
+    --gold:#f0b860;
+    --dot-off:#f6d5e0;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    min-height:100vh;
+    min-height:100dvh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Quicksand',sans-serif;
+    background:linear-gradient(160deg,var(--bg-top),var(--bg-bottom));
+    overflow:hidden;
+    position:relative;
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+
+  /* ambient floating hearts */
+  .heart-field{position:fixed;inset:0;pointer-events:none;z-index:0;}
+  .drift{
+    position:absolute;bottom:-10%;font-size:1.2rem;opacity:.55;
+    animation:rise linear infinite;color:var(--rose);
+    filter:drop-shadow(0 0 2px rgba(255,255,255,.5));
+  }
+  @keyframes rise{
+    0%{transform:translateY(0) translateX(0) rotate(0deg);opacity:0;}
+    10%{opacity:.6;} 90%{opacity:.5;}
+    100%{transform:translateY(-115vh) translateX(var(--drift,20px)) rotate(20deg);opacity:0;}
+  }
+
+  .stage{position:relative;z-index:2;width:min(92vw,420px);}
+
+  .steps-track{display:flex;justify-content:center;gap:10px;margin-bottom:18px;}
+  .steps-track span{
+    width:9px;height:9px;border-radius:50%;background:var(--dot-off);
+    transition:background .4s ease,transform .4s ease;
+  }
+  .steps-track span.done{background:var(--rose);transform:scale(1.15);}
+
+  .card{
+    position:relative;background:var(--card);border-radius:26px;
+    padding:38px 28px 34px;
+    box-shadow:0 20px 50px -18px rgba(201,63,102,.45),0 2px 0 rgba(255,255,255,.6) inset;
+    text-align:center;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;overflow:visible;
+    animation:cardIn .5s ease both;
+  }
+  @keyframes cardIn{from{opacity:0;transform:translateY(14px) scale(.98);}to{opacity:1;transform:none;}}
+
+  .eyebrow{
+    font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--rose-deep);font-weight:700;margin-bottom:10px;
+  }
+
+  h1{
+    font-family:'Fraunces',serif;font-style:italic;font-weight:600;
+    font-size:1.7rem;line-height:1.25;color:var(--ink);margin:0 0 14px;
+  }
+
+  p.body-text{
+    font-size:1.02rem;line-height:1.6;color:var(--ink-soft);
+    margin:0 0 26px;font-weight:500;
+  }
+
+  .btn-row{
+    position:relative;display:flex;gap:14px;justify-content:center;
+    align-items:center;width:100%;min-height:56px;
+  }
+
+  button{
+    font-family:'Quicksand',sans-serif;font-weight:700;border:none;border-radius:999px;
+    cursor:pointer;user-select:none;-webkit-user-select:none;
+    transition:transform .18s ease,box-shadow .18s ease,font-size .3s ease,padding .3s ease,background .2s ease;
+  }
+
+  .yes-btn{
+    background:linear-gradient(135deg,var(--rose),var(--rose-deep));color:#fff;
+    padding:14px 26px;font-size:1rem;box-shadow:0 10px 22px -8px rgba(201,63,102,.55);
+  }
+  .yes-btn:hover{transform:translateY(-2px);}
+  .yes-btn:active{transform:translateY(0) scale(.97);}
+  .yes-btn.grow1{font-size:1.06rem;padding:15px 28px;}
+  .yes-btn.grow2{font-size:1.16rem;padding:17px 32px;}
+  .yes-btn.grow3{font-size:1.28rem;padding:19px 36px;box-shadow:0 14px 28px -8px rgba(201,63,102,.6);}
+
+  .no-btn{
+    background:#fff;color:var(--ink-soft);padding:12px 20px;font-size:.92rem;
+    border:1.5px solid #f1cdd9;position:relative;will-change:left,top;
+  }
+  .no-btn.dodging{position:fixed;z-index:50;}
+  .no-btn.pop{animation:pop .2s ease;}
+  @keyframes pop{0%{transform:scale(.82);}60%{transform:scale(1.08);}100%{transform:scale(1);}}
+
+  /* final step */
+  .promise-visual{font-size:3.4rem;margin-bottom:14px;line-height:1;animation:beat 1.6s ease-in-out infinite;}
+  @keyframes beat{0%,100%{transform:scale(1);}50%{transform:scale(1.12);}}
+  .signoff{margin-top:6px;font-family:'Fraunces',serif;font-style:italic;color:var(--rose-deep);font-size:.95rem;}
+  .ps-text{font-size:.85rem;color:var(--ink-soft);opacity:.85;margin:14px 0 0;font-weight:600;}
+
+  .hidden{display:none !important;}
+
+  @media (prefers-reduced-motion: reduce){.drift{animation:none;display:none;}}
+</style>
+</head>
+<body>
+
+<div class="heart-field" id="heartField"></div>
+
+<div class="stage">
+  <div class="steps-track" id="stepsTrack">
+    <span class="done"></span><span></span><span></span><span></span>
+  </div>
+
+  <div class="card" id="card">
+
+    <!-- STEP 1 -->
+    <div class="step" data-step="1">
+      <div class="eyebrow">Status: in the doghouse</div>
+      <h1>I'm really sorry, Sanu.</h1>
+      <p class="body-text">I know I hurt you, and I hate that I did. You didn't deserve that. I'm not going to make excuses or talk my way out of it — I just want a real chance to make it right.</p>
+      <div class="btn-row">
+        <button class="yes-btn" data-yes>I forgive you</button>
+        <button class="no-btn" data-no data-labels="Not yet,still not yet,okay… you're allowed to be mad">Not yet</button>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="step hidden" data-step="2">
+      <div class="eyebrow">Status: still in the doghouse</div>
+      <h1>I mean it, Sanu.</h1>
+      <p class="body-text">"Sorry" is just a word until I show you. I'm not rushing you — however long it takes, I want to earn your trust back for real.</p>
+      <div class="btn-row">
+        <button class="yes-btn" data-yes>Okay… I forgive you</button>
+        <button class="no-btn" data-no data-labels="Still not ready,not so fast,I run faster when I'm guilty,seriously though, I get it">Still not ready</button>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="step hidden" data-step="3">
+      <div class="eyebrow">Status: hoodie thief on standby</div>
+      <h1>I miss you.</h1>
+      <p class="body-text">Not the version of us mid-fight — the version where you laugh at my terrible jokes and steal my hoodie. That's the one I want to get back to. With you.</p>
+      <div class="btn-row">
+        <button class="yes-btn" data-yes>Come here, Budi Don</button>
+        <button class="no-btn" data-no data-labels="Nice try,ha, no,this button has trust issues too,the button's not ready either">Nice try</button>
+      </div>
+    </div>
+
+    <!-- STEP 4 / FINAL -->
+    <div class="step hidden" data-step="4">
+      <div class="eyebrow">Status: officially forgiven (allegedly)</div>
+      <div class="promise-visual">🫶💕</div>
+      <h1>Us, still.</h1>
+      <p class="body-text">Thank you, Sanu. I promise to listen more, be more patient, and never let something small turn into something that actually hurts you. I love you.</p>
+      <p class="ps-text">P.S. — I almost typed "babe" about three times writing this. Some things don't change.</p>
+      <div class="signoff">— Budi Don</div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/canvas-confetti/1.9.3/confetti.browser.min.js"></script>
+<script>
+(function(){
+  const steps = Array.from(document.querySelectorAll('.step'));
+  const dots = Array.from(document.querySelectorAll('#stepsTrack span'));
+  const KEY = 'sanu-forgive-step';
+  const colors = ['#e0577c','#f0b860','#ffc9dc','#c93f66'];
+  let current = 1;
+  let sparkleTimer = null;
+
+  function loadStep(){ try{ return parseInt(localStorage.getItem(KEY),10) || 1; }catch(e){ return 1; } }
+  function saveStep(n){ try{ localStorage.setItem(KEY, n); }catch(e){} }
+
+  function showStep(n){
+    n = Math.min(Math.max(n,1), steps.length);
+    steps.forEach(s => s.classList.toggle('hidden', Number(s.dataset.step) !== n));
+    dots.forEach((d,i) => d.classList.toggle('done', i < n));
+    current = n;
+    saveStep(n);
+    if(n === 4){ setTimeout(fireConfetti, 180); startSparkle(); }
+    else { stopSparkle(); }
+    // reset any dodged buttons that belong to other steps back to default spot
+    document.querySelectorAll('.no-btn.dodging').forEach(b=>{
+      if(Number(b.closest('.step').dataset.step)!==n){ b.classList.remove('dodging'); b.style.left=''; b.style.top=''; }
+    });
+  }
+
+  function fireConfetti(){
+    if(typeof confetti !== 'function') return;
+    confetti({ particleCount:90, spread:70, origin:{y:0.6}, colors });
+    setTimeout(()=> confetti({ particleCount:60, spread:100, origin:{y:0.4}, colors }), 300);
+  }
+  function startSparkle(){
+    stopSparkle();
+    sparkleTimer = setInterval(()=>{
+      if(current !== 4){ stopSparkle(); return; }
+      if(typeof confetti === 'function') confetti({ particleCount:16, spread:60, startVelocity:25, origin:{y:0.5}, colors, scalar:.7, ticks:120 });
+    }, 3500);
+  }
+  function stopSparkle(){ if(sparkleTimer){ clearInterval(sparkleTimer); sparkleTimer = null; } }
+
+  // Yes buttons -> advance
+  document.querySelectorAll('[data-yes]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{ if(current < steps.length) showStep(current + 1); });
+  });
+
+  // No buttons -> dodge from every angle
+  document.querySelectorAll('[data-no]').forEach(btn=>{
+    const step = Number(btn.closest('.step').dataset.step);
+    const labels = (btn.dataset.labels || btn.textContent).split(',');
+    let dodgeCount = 0;
+    let cooldown = false;
+    const isVisible = ()=> !btn.closest('.step').classList.contains('hidden');
+
+    function radius(){
+      const base = Math.min(window.innerWidth, window.innerHeight) * 0.26;
+      return base + step * 18; // a little harder each step
+    }
+
+    function nextLabel(){
+      btn.textContent = labels[Math.min(dodgeCount, labels.length - 1)];
+    }
+    function growYes(){
+      const yes = btn.closest('.step').querySelector('.yes-btn');
+      if(!yes) return;
+      yes.classList.toggle('grow1', dodgeCount >= 2);
+      yes.classList.toggle('grow2', dodgeCount >= 5);
+      yes.classList.toggle('grow3', dodgeCount >= 8);
+    }
+
+    function dodge(cx, cy){
+      if(!isVisible() || cooldown) return;
+      cooldown = true;
+      requestAnimationFrame(()=>{ cooldown = false; });
+
+      const w = window.innerWidth, h = window.innerHeight;
+      const bw = btn.offsetWidth || 120, bh = btn.offsetHeight || 46, m = 14;
+      const limX = w - bw - m, limY = h - bh - m;
+
+      // Always flee to the opposite quadrant from the cursor:
+      // guarantees it moves away AND stays fully on-screen on small phones.
+      const goLeft = cx > w/2;
+      const goTop  = cy > h/2;
+      let xMin = goLeft ? m : Math.max(m, w*0.5);
+      let xMax = goLeft ? Math.min(limX, w*0.5 - bw) : limX;
+      let yMin = goTop  ? m : Math.max(m, h*0.5);
+      let yMax = goTop  ? Math.min(limY, h*0.5 - bh) : limY;
+      if(xMax <= xMin) xMax = Math.min(limX, xMin + bw);
+      if(yMax <= yMin) yMax = Math.min(limY, yMin + bh);
+
+      const nx = xMin + Math.random()*(xMax - xMin);
+      const ny = yMin + Math.random()*(yMax - yMin);
+
+      btn.classList.add('dodging');
+      btn.style.left = nx + 'px';
+      btn.style.top  = ny + 'px';
+
+      // pop feedback
+      btn.classList.remove('pop'); void btn.offsetWidth; btn.classList.add('pop');
+
+      dodgeCount++;
+      nextLabel();
+      growYes();
+    }
+
+    function proximity(clientX, clientY){
+      const r = btn.getBoundingClientRect();
+      const cx = r.left + r.width/2, cy = r.top + r.height/2;
+      if(Math.hypot(clientX - cx, clientY - cy) < radius()) dodge(clientX, clientY);
+    }
+
+    // approaching from a distance (fast mouse moves included)
+    document.addEventListener('mousemove', e=>{ if(isVisible()) proximity(e.clientX, e.clientY); });
+
+    // instant dodge the moment the cursor lands on it (the "must cover on hover" guarantee)
+    btn.addEventListener('mouseenter', e=>{ if(isVisible()) dodge(e.clientX, e.clientY); });
+    btn.addEventListener('pointerenter', e=>{ if(isVisible()) dodge(e.clientX, e.clientY); });
+
+    // keyboard: if she tabs to it, it flees and unfocuses
+    btn.addEventListener('focus', ()=>{
+      if(!isVisible()) return;
+      const r = btn.getBoundingClientRect();
+      dodge(r.left + r.width/2, r.top + r.height/2);
+      btn.blur();
+    });
+
+    // touch: dodge when her thumb gets near OR directly taps, and cycle the label too
+    document.addEventListener('touchstart', e=>{
+      if(!isVisible()) return;
+      const t = e.touches[0];
+      const r = btn.getBoundingClientRect();
+      const cx = r.left + r.width/2, cy = r.top + r.height/2;
+      if(Math.hypot(t.clientX - cx, t.clientY - cy) < radius() + 60) dodge(t.clientX, t.clientY);
+    }, { passive:true });
+    btn.addEventListener('touchstart', e=>{ if(isVisible()){ const t=e.touches[0]; dodge(t.clientX, t.clientY); } }, { passive:true });
+
+    // last-resort cover: a click that somehow lands is one more dodge, never a real "no"
+    btn.addEventListener('click', e=>{ e.preventDefault(); dodge(e.clientX, e.clientY); });
+    btn.addEventListener('contextmenu', e=> e.preventDefault());
+  });
+
+  // ambient floating hearts
+  const field = document.getElementById('heartField');
+  const glyphs = ['💗','💕','💖','♥'];
+  for(let i=0;i<22;i++){
+    const el = document.createElement('span');
+    el.className = 'drift';
+    el.textContent = glyphs[Math.floor(Math.random()*glyphs.length)];
+    el.style.left = Math.random()*100 + 'vw';
+    el.style.setProperty('--drift', (Math.random()*140 - 70) + 'px');
+    el.style.animationDuration = (9 + Math.random()*10) + 's';
+    el.style.animationDelay = (Math.random()*10) + 's';
+    el.style.fontSize = (0.9 + Math.random()*1.1) + 'rem';
+    field.appendChild(el);
+  }
+
+  showStep(loadStep());
+})();
+</script>
+</body>
+</html>
