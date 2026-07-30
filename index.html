@@ -116,6 +116,12 @@
   .promise-visual{font-size:3.4rem;margin-bottom:14px;line-height:1;animation:beat 1.6s ease-in-out infinite;}
   @keyframes beat{0%,100%{transform:scale(1);}50%{transform:scale(1.12);}}
   .signoff{margin-top:6px;font-family:'Fraunces',serif;font-style:italic;color:var(--rose-deep);font-size:.95rem;}
+  .restart-btn{
+    margin-top:26px;background:transparent;color:var(--rose-deep);
+    border:1.5px solid #f1cdd9;padding:10px 22px;font-size:.85rem;font-weight:700;
+  }
+  .restart-btn:hover{background:#fff;}
+  .restart-btn:active{transform:scale(.96);}
   .ps-text{font-size:.85rem;color:var(--ink-soft);opacity:.85;margin:14px 0 0;font-weight:600;}
 
   .hidden{display:none !important;}
@@ -175,6 +181,7 @@
       <p class="body-text">Thank you, Sanu. I promise to listen more, be more patient, and never let something small turn into something that actually hurts you. I love you.</p>
       <p class="ps-text">P.S. — I almost typed "babe" about three times writing this. Some things don't change.</p>
       <div class="signoff">— Budi Don</div>
+      <button class="restart-btn" data-restart>↺ Read it again</button>
     </div>
 
   </div>
@@ -224,6 +231,11 @@
   // Yes buttons -> advance
   document.querySelectorAll('[data-yes]').forEach(btn=>{
     btn.addEventListener('click', ()=>{ if(current < steps.length) showStep(current + 1); });
+  });
+
+  // Restart button (on the final screen) -> back to step 1
+  document.querySelectorAll('[data-restart]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{ saveStep(1); showStep(1); });
   });
 
   // No buttons -> dodge from every angle
