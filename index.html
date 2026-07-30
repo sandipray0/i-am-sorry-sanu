@@ -184,6 +184,18 @@
     font-weight:600;
   }
 
+  .restart-btn{
+    margin-top:22px;
+    background:transparent;
+    color:var(--rose-deep);
+    border:1.5px solid #f1cdd9;
+    padding:10px 22px;
+    font-size:.85rem;
+    font-weight:700;
+  }
+  .restart-btn:hover{background:#fff;}
+  .restart-btn:active{transform:scale(.96);}
+
   .hidden{display:none !important;}
 
   @media (prefers-reduced-motion: reduce){
@@ -242,6 +254,7 @@
       <h1>Us, still.</h1>
       <p class="body-text">Thank you for forgiving me. I promise to listen more, be more patient, and never let something small turn into something that actually hurts you.<br>I love you, Sanu.</p>
       <div class="signoff">— Budi Don</div>
+      <button class="restart-btn" data-restart>↺ Read it again</button>
     </div>
 
   </div>
@@ -276,6 +289,11 @@
     btn.addEventListener('click', ()=>{
       if(current < 4) showStep(current + 1);
     });
+  });
+
+  // restart button -> back to step 1
+  document.querySelectorAll('[data-restart]').forEach(btn=>{
+    btn.addEventListener('click', ()=> showStep(1));
   });
 
   // dodge logic for No buttons, escalating per step, with cycling labels
