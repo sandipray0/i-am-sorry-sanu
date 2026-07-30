@@ -256,22 +256,29 @@
       requestAnimationFrame(()=>{ cooldown = false; });
 
       const w = window.innerWidth, h = window.innerHeight;
-      const bw = btn.offsetWidth || 120, bh = btn.offsetHeight || 46, m = 14;
-      const limX = w - bw - m, limY = h - bh - m;
+      const bw = Math.max(btn.offsetWidth, 40), bh = Math.max(btn.offsetHeight, 36);
+      const mx = Math.max(16, Math.round(w * 0.06)); // keep clear of left/right edges
+      const my = Math.max(16, Math.round(h * 0.05)); // keep clear of top/bottom edges
+      const minX = mx, maxX = Math.max(minX, w - bw - mx);
+      const minY = my, maxY = Math.max(minY, h - bh - my);
 
-      // Always flee to the opposite quadrant from the cursor:
-      // guarantees it moves away AND stays fully on-screen on small phones.
-      const goLeft = cx > w/2;
-      const goTop  = cy > h/2;
-      let xMin = goLeft ? m : Math.max(m, w*0.5);
-      let xMax = goLeft ? Math.min(limX, w*0.5 - bw) : limX;
-      let yMin = goTop  ? m : Math.max(m, h*0.5);
-      let yMax = goTop  ? Math.min(limY, h*0.5 - bh) : limY;
-      if(xMax <= xMin) xMax = Math.min(limX, xMin + bw);
-      if(yMax <= yMin) yMax = Math.min(limY, yMin + bh);
-
-      const nx = xMin + Math.random()*(xMax - xMin);
-      const ny = yMin + Math.random()*(yMax - yMin);
+      // Generate candidates across the whole screen + the 4 corners, then ALWAYS
+      // pick the one farthest from the cursor. That sends it to the opposite side
+      // AND guarantees it stays fully on-screen (never disappears).
+      let best = [maxX, maxY], bestDist = -1;
+      const candidates = [
+        ...Array.from({length:12}, ()=>[
+          minX + Math.random()*(maxX - minX),
+          minY + Math.random()*(maxY - minY)
+        ]),
+        [minX, minY], [maxX, minY], [minX, maxY], [maxX, maxY]
+      ];
+      for(const [x,y] of candidates){
+        const d = Math.hypot(x - cx, y - cy);
+        if(d > bestDist){ bestDist = d; best = [x, y]; }
+      }
+      const nx = Math.max(minX, Math.min(maxX, best[0]));
+      const ny = Math.max(minY, Math.min(maxY, best[1]));
 
       btn.classList.add('dodging');
       btn.style.left = nx + 'px';
