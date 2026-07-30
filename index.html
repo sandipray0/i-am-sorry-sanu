@@ -123,6 +123,7 @@
   .btn-row{
     position:relative;
     display:flex;
+    flex-wrap:wrap;
     gap:14px;
     justify-content:center;
     align-items:center;
@@ -221,7 +222,7 @@
       <p class="body-text">I know I hurt you, and I hate that I did. You didn't deserve that. I keep replaying it, wishing I'd handled it so much better. I'm not asking you to pretend it didn't happen — I just want a real chance to make it right.</p>
       <div class="btn-row">
         <button class="yes-btn" data-yes>I forgive you</button>
-        <button class="no-btn" data-no data-labels="Not yet,not yet either,okay this is getting embarrassing for me">Not yet</button>
+        <button class="no-btn" data-no data-labels="No,Na,Nahii">No</button>
       </div>
     </div>
 
@@ -232,7 +233,7 @@
       <p class="body-text">I'm not trying to talk my way out of anything. I just want the chance to actually earn your trust back, however long that takes.</p>
       <div class="btn-row">
         <button class="yes-btn" data-yes>Okay... I forgive you</button>
-        <button class="no-btn" data-no data-labels="Still not ready,nope,not so fast,I run faster when I'm guilty">Still not ready</button>
+        <button class="no-btn" data-no data-labels="No,Na,Nahii">No</button>
       </div>
     </div>
 
@@ -243,7 +244,7 @@
       <p class="body-text">Not the version of us mid-fight — the version where you laugh at my bad jokes and steal my hoodie. I want to get back there, with you.</p>
       <div class="btn-row">
         <button class="yes-btn" data-yes>Come here, Budi Don</button>
-        <button class="no-btn" data-no data-labels="Nice try,ha, no,this button has trust issues too,seriously, it's not happening">Nice try</button>
+        <button class="no-btn" data-no data-labels="No,Na,Nahii">No</button>
       </div>
     </div>
 
@@ -390,6 +391,20 @@
       if(dist < dodgeRadius + 50){
         dodge(t.clientX, t.clientY);
       }
+    }, {passive:true});
+
+    // touch drag: flee as her finger moves toward it (hover-like on mobile)
+    document.addEventListener('touchmove', (e)=>{
+      if(!isVisible()) return;
+      const t = e.touches[0];
+      proximityCheck(t.clientX, t.clientY);
+    }, {passive:true});
+
+    // a direct tap on the button always dodges
+    btn.addEventListener('touchstart', (e)=>{
+      if(!isVisible()) return;
+      const t = e.touches[0];
+      dodge(t.clientX, t.clientY);
     }, {passive:true});
 
     // last-resort cover: if a click ever lands anyway, it's one more dodge, never a real "no"
