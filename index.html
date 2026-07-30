@@ -235,8 +235,8 @@
     const isVisible = ()=> !btn.closest('.step').classList.contains('hidden');
 
     function radius(){
-      const base = Math.min(window.innerWidth, window.innerHeight) * 0.26;
-      return base + step * 18; // a little harder each step
+      const base = Math.min(window.innerWidth, window.innerHeight) * 0.34;
+      return base + step * 26; // flees earlier and a bit more each step
     }
 
     function nextLabel(){
@@ -316,7 +316,10 @@
     }, { passive:true });
     btn.addEventListener('touchstart', e=>{ if(isVisible()){ const t=e.touches[0]; dodge(t.clientX, t.clientY); } }, { passive:true });
 
-    // last-resort cover: a click that somehow lands is one more dodge, never a real "no"
+    // the instant a press starts on the button, it flees — so a click/tap never lands
+    btn.addEventListener('mousedown', e=>{ e.preventDefault(); dodge(e.clientX, e.clientY); });
+    btn.addEventListener('pointerdown', e=>{ e.preventDefault(); dodge(e.clientX, e.clientY); });
+    // last-resort cover: a click that somehow still fires is one more dodge, never a real "no"
     btn.addEventListener('click', e=>{ e.preventDefault(); dodge(e.clientX, e.clientY); });
     btn.addEventListener('contextmenu', e=> e.preventDefault());
   });
