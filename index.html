@@ -19,7 +19,7 @@
     --gold:#f0b860;
     --dot-off:#f6d5e0;
   }
-  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  *{box-sizing:border-box;}
   html,body{height:100%;}
   body{
     margin:0;
@@ -31,6 +31,7 @@
     background:linear-gradient(160deg,var(--bg-top),var(--bg-bottom));
     overflow:hidden;
     position:relative;
+    -webkit-tap-highlight-color:transparent;
   }
   /* ambient floating hearts */
   .heart-field{
@@ -135,8 +136,6 @@
     border:none;
     border-radius:999px;
     cursor:pointer;
-    user-select:none;
-    -webkit-user-select:none;
     transition:transform .18s ease, box-shadow .18s ease, font-size .3s ease, padding .3s ease;
   }
 
@@ -153,7 +152,7 @@
   .no-btn{
     background:#fff;
     color:var(--ink-soft);
-    padding:12px 22px;
+    padding:12px 20px;
     font-size:.92rem;
     border:1.5px solid #f1cdd9;
     position:relative;
@@ -162,8 +161,6 @@
     position:fixed;
     z-index:50;
   }
-  .no-btn.pop{animation:pop .2s ease;}
-  @keyframes pop{0%{transform:scale(.85);}60%{transform:scale(1.08);}100%{transform:scale(1);}}
 
   /* final step */
   .promise-visual{
@@ -256,16 +253,13 @@
 (function(){
   const steps = Array.from(document.querySelectorAll('.step'));
   const dots = Array.from(document.querySelectorAll('#stepsTrack span'));
+  const card = document.getElementById('card');
   let current = 1;
 
   function showStep(n){
     steps.forEach(s => s.classList.toggle('hidden', Number(s.dataset.step) !== n));
     dots.forEach((d,i) => d.classList.toggle('done', i < n));
     current = n;
-    // hide any dodged No-buttons that belong to other steps
-    document.querySelectorAll('.no-btn.dodging').forEach(b=>{
-      b.style.display = (Number(b.dataset.stepN) === n) ? '' : 'none';
-    });
     if(n === 4){
       setTimeout(fireConfetti, 200);
     }
@@ -285,92 +279,83 @@
     });
   });
 
-  // dodge logic for No buttons — the button moves to <body> so position:fixed is
-  // measured from the viewport, and it can NEVER leave the screen or be clicked.
+  // dodge logic for No buttons, escalating per step, with cycling labels
   document.querySelectorAll('[data-no]').forEach(btn=>{
-    const stepEl = btn.closest('.step');
-    const step = Number(stepEl.dataset.step);
-    btn.dataset.stepN = step;
-    const yesBtn = stepEl.querySelector('.yes-btn');
+    const step = Number(btn.closest('.step').dataset.step);
+    const dodgeRadius = 100 + step * 30;      // gets harder to approach each step
     const labels = (btn.dataset.labels || btn.textContent).split(',');
     let dodges = 0;
     let cooldown = false;
-    const isVisible = () => Number(btn.dataset.stepN) === current;
-
-    function radius(){
-      return Math.min(window.innerWidth, window.innerHeight) * 0.22 + step * 16;
-    }
 
     function nextLabel(){
-      btn.textContent = labels[Math.min(dodges, labels.length - 1)];
-    }
-    function growYes(){
-      if(!yesBtn) return;
-      if(dodges === 3){ yesBtn.style.fontSize = '1.08rem'; yesBtn.style.padding = '16px 30px'; }
-      if(dodges === 6){ yesBtn.style.fontSize = '1.18rem'; yesBtn.style.padding = '18px 34px'; }
+      const label = labels[Math.min(dodges, labels.length - 1)];
+      btn.textContent = label;
     }
 
-    function dodge(cx, cy){
-      if(!isVisible() || cooldown) return;
+    function dodge(clientX, clientY){
+      if(cooldown) return;
       cooldown = true;
       requestAnimationFrame(()=>{ cooldown = false; });
 
-      const w = window.innerWidth, h = window.innerHeight;
-      const bw = Math.max(btn.offsetWidth, 40), bh = Math.max(btn.offsetHeight, 36);
-      const mx = Math.max(16, Math.round(w * 0.06));
-      const my = Math.max(16, Math.round(h * 0.05));
-      const minX = mx, maxX = Math.max(minX, w - bw - mx);
-      const minY = my, maxY = Math.max(minY, h - bh - my);
+      const btnW = btn.offsetWidth || 100, btnH = btn.offsetHeight || 44;
+      const margin = 16;
+      const maxX = window.innerWidth - btnW - margin;
+      const maxY = window.innerHeight - btnH - margin;
+      let nx, ny, tries = 0;
+      do{
+        nx = margin + Math.random() * (maxX - margin);
+        ny = margin + Math.random() * (maxY - margin);
+        tries++;
+      } while(Math.hypot(nx - clientX, ny - clientY) < dodgeRadius && tries < 14);
 
-      // pick the candidate farthest from the cursor (sends it to the opposite side),
-      // then hard-clamp so it can NEVER leave the viewport (stays visible).
-      let best = [maxX, maxY], bestDist = -1;
-      const candidates = [
-        ...Array.from({length:12}, ()=>[
-          minX + Math.random()*(maxX - minX),
-          minY + Math.random()*(maxY - minY)
-        ]),
-        [minX, minY], [maxX, minY], [minX, maxY], [maxX, maxY]
-      ];
-      for(const [x,y] of candidates){
-        const d = Math.hypot(x - cx, y - cy);
-        if(d > bestDist){ bestDist = d; best = [x, y]; }
-      }
-      const nx = Math.max(minX, Math.min(maxX, best[0]));
-      const ny = Math.max(minY, Math.min(maxY, best[1]));
-
-      // on first dodge, move into <body> so no ancestor can trap it off-screen
-      if(!btn.classList.contains('dodging')){
-        document.body.appendChild(btn);
-        btn.classList.add('dodging');
-      }
+      btn.classList.add('dodging');
       btn.style.left = nx + 'px';
-      btn.style.top  = ny + 'px';
-      btn.classList.remove('pop'); void btn.offsetWidth; btn.classList.add('pop');
-
+      btn.style.top = ny + 'px';
       dodges++;
       nextLabel();
-      growYes();
+
+      // after enough evasive maneuvers, make the yes button a little more inviting
+      if(dodges === 3){
+        const yes = btn.closest('.step').querySelector('.yes-btn');
+        yes.style.fontSize = '1.08rem';
+        yes.style.padding = '16px 30px';
+      }
+      if(dodges === 6){
+        const yes = btn.closest('.step').querySelector('.yes-btn');
+        yes.style.fontSize = '1.18rem';
+        yes.style.padding = '18px 34px';
+      }
     }
 
-    function proximity(cx, cy){
+    function proximityCheck(clientX, clientY){
       const r = btn.getBoundingClientRect();
-      const bx = r.left + r.width/2, by = r.top + r.height/2;
-      if(Math.hypot(cx - bx, cy - by) < radius()) dodge(cx, cy);
+      const cx = r.left + r.width/2, cy = r.top + r.height/2;
+      const dist = Math.hypot(clientX - cx, clientY - cy);
+      if(dist < dodgeRadius){
+        dodge(clientX, clientY);
+      }
     }
 
-    // approaching from a distance (only once the pointer has truly moved)
-    document.addEventListener('mousemove', e=>{
+    const isVisible = () => !btn.closest('.step').classList.contains('hidden');
+
+    // covers hover approaching from a distance (fast mouse jumps included)
+    document.addEventListener('mousemove', (e)=>{
       if(!isVisible()) return;
-      if(e.movementX === 0 && e.movementY === 0) return;
-      proximity(e.clientX, e.clientY);
+      proximityCheck(e.clientX, e.clientY);
     });
 
-    // the instant the cursor touches it, it flees
-    btn.addEventListener('mouseenter', e=>{ if(isVisible()) dodge(e.clientX, e.clientY); });
-    btn.addEventListener('pointerenter', e=>{ if(isVisible()) dodge(e.clientX, e.clientY); });
+    // covers the instant the cursor actually enters the button's box —
+    // guarantees a dodge even if mousemove somehow skipped a frame
+    btn.addEventListener('mouseenter', (e)=>{
+      if(!isVisible()) return;
+      dodge(e.clientX, e.clientY);
+    });
+    btn.addEventListener('pointerenter', (e)=>{
+      if(!isVisible()) return;
+      dodge(e.clientX, e.clientY);
+    });
 
-    // keyboard
+    // covers keyboard focus (tabbing to the button)
     btn.addEventListener('focus', ()=>{
       if(!isVisible()) return;
       const r = btn.getBoundingClientRect();
@@ -378,22 +363,23 @@
       btn.blur();
     });
 
-    // touch
-    document.addEventListener('touchstart', e=>{
+    // touch: dodge on touch-near or direct touch attempt
+    document.addEventListener('touchstart', (e)=>{
       if(!isVisible()) return;
       const t = e.touches[0];
       const r = btn.getBoundingClientRect();
-      const bx = r.left + r.width/2, by = r.top + r.height/2;
-      if(Math.hypot(t.clientX - bx, t.clientY - by) < radius() + 60) dodge(t.clientX, t.clientY);
+      const cx = r.left + r.width/2, cy = r.top + r.height/2;
+      const dist = Math.hypot(t.clientX - cx, t.clientY - cy);
+      if(dist < dodgeRadius + 50){
+        dodge(t.clientX, t.clientY);
+      }
     }, {passive:true});
-    btn.addEventListener('touchstart', e=>{ if(isVisible()){ const t=e.touches[0]; dodge(t.clientX, t.clientY); } }, {passive:true});
 
-    // a press that starts on it flees before any click can land
-    btn.addEventListener('mousedown', e=>{ e.preventDefault(); dodge(e.clientX, e.clientY); });
-    btn.addEventListener('pointerdown', e=>{ e.preventDefault(); dodge(e.clientX, e.clientY); });
-    // last-resort: a click that still fires is one more dodge, never a real "no"
-    btn.addEventListener('click', e=>{ e.preventDefault(); dodge(e.clientX, e.clientY); });
-    btn.addEventListener('contextmenu', e=> e.preventDefault());
+    // last-resort cover: if a click ever lands anyway, it's one more dodge, never a real "no"
+    btn.addEventListener('click', (e)=>{
+      e.preventDefault();
+      dodge(e.clientX, e.clientY);
+    });
   });
 
   // ambient floating hearts
