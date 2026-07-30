@@ -208,9 +208,9 @@
     saveStep(n);
     if(n === 4){ setTimeout(fireConfetti, 180); startSparkle(); }
     else { stopSparkle(); }
-    // reset any dodged buttons that belong to other steps back to default spot
+    // hide dodged No-buttons that belong to other steps (once dodging, they live in <body>)
     document.querySelectorAll('.no-btn.dodging').forEach(b=>{
-      if(Number(b.closest('.step').dataset.step)!==n){ b.classList.remove('dodging'); b.style.left=''; b.style.top=''; }
+      b.style.display = (Number(b.dataset.stepN) === n) ? '' : 'none';
     });
   }
 
@@ -240,11 +240,14 @@
 
   // No buttons -> dodge from every angle
   document.querySelectorAll('[data-no]').forEach(btn=>{
-    const step = Number(btn.closest('.step').dataset.step);
+    const stepEl = btn.closest('.step');
+    const step = Number(stepEl.dataset.step);
+    btn.dataset.stepN = step;                          // remember which step it belongs to
+    const yesBtn = stepEl.querySelector('.yes-btn');   // cache before the button may move to <body>
     const labels = (btn.dataset.labels || btn.textContent).split(',');
     let dodgeCount = 0;
     let cooldown = false;
-    const isVisible = ()=> !btn.closest('.step').classList.contains('hidden');
+    const isVisible = ()=> Number(btn.dataset.stepN) === current;
 
     function radius(){
       const base = Math.min(window.innerWidth, window.innerHeight) * 0.2;
@@ -255,11 +258,10 @@
       btn.textContent = labels[Math.min(dodgeCount, labels.length - 1)];
     }
     function growYes(){
-      const yes = btn.closest('.step').querySelector('.yes-btn');
-      if(!yes) return;
-      yes.classList.toggle('grow1', dodgeCount >= 2);
-      yes.classList.toggle('grow2', dodgeCount >= 5);
-      yes.classList.toggle('grow3', dodgeCount >= 8);
+      if(!yesBtn) return;
+      yesBtn.classList.toggle('grow1', dodgeCount >= 2);
+      yesBtn.classList.toggle('grow2', dodgeCount >= 5);
+      yesBtn.classList.toggle('grow3', dodgeCount >= 8);
     }
 
     function dodge(cx, cy){
@@ -292,7 +294,12 @@
       const nx = Math.max(minX, Math.min(maxX, best[0]));
       const ny = Math.max(minY, Math.min(maxY, best[1]));
 
-      btn.classList.add('dodging');
+      // On first dodge, move the button to <body> (which has no transform), so
+      // position:fixed is truly measured from the viewport and it can NEVER leave the screen.
+      if(!btn.classList.contains('dodging')){
+        document.body.appendChild(btn);
+        btn.classList.add('dodging');
+      }
       btn.style.left = nx + 'px';
       btn.style.top  = ny + 'px';
 
